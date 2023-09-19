@@ -1,6 +1,6 @@
 [project]
 name = "plainconf"
-version = "0.1.4"
+version = "0.1.9"
 description = "Minimal configuration handling supporting hashicorp vault."
 authors = [{name="Caspar David Dzikus", email="caspar@kodekitchen.com"}]
 classifiers = ["Development Status :: 2 - Pre-Alpha"]
