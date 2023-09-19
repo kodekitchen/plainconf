@@ -1,0 +1,9 @@
+[default]
+bar = "foo"
+foo = "bar"
+
+[development]
+foo = "development test"
+
+[testing]
+foo = "testing test"
