@@ -1,10 +1,9 @@
+import os
 from unittest import mock
 
-from ..plainconf import Plainconf
-
-import os
-
 import pytest
+
+from plainconf import Plainconf
 
 
 @pytest.fixture
@@ -12,10 +11,6 @@ def conf():
     os.environ['PLAINCONF_VAULT_URL'] = 'http://test.url'
     with mock.patch('hvac.Client'):
         yield Plainconf()
-
-
-def _called():
-    print('Called')
 
 
 def test_conf(conf):
