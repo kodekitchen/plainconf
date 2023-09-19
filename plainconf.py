@@ -53,17 +53,17 @@ class Plainconf:
 
         self.settings_file = (
             kwargs.get("settings_file")
-            or os.getenv("SOBERCONF_SETTINGS_FILE")
+            or os.getenv("PLAINCONF_SETTINGS_FILE")
             or "plainconf_settings.toml"
         )
         self.secrets_file = (
             kwargs.get("secrets_file")
-            or os.getenv("SOBERCONF_SECRETS_FILE")
+            or os.getenv("PLAINCONF_SECRETS_FILE")
             or '.plainconf_secrets.toml'
         )
         self.environment = (
             kwargs.get("environment") 
-            or os.getenv("SOBERCONF_ENVIRONMENT") 
+            or os.getenv("PLAINCONF_ENVIRONMENT") 
             or "default"
         )
 
@@ -71,29 +71,29 @@ class Plainconf:
 
         self.vault_url = (
             kwargs.get("vault_url") 
-            or os.getenv("SOBERCONF_VAULT_URL")
+            or os.getenv("PLAINCONF_VAULT_URL")
         )
         vault_token = (
             kwargs.get("vault_token") 
-            or os.getenv("SOBERCONF_VAULT_TOKEN")
+            or os.getenv("PLAINCONF_VAULT_TOKEN")
         )
         vault_user = (
             kwargs.get("vault_user") 
-            or os.getenv("SOBERCONF_VAULT_USER") 
+            or os.getenv("PLAINCONF_VAULT_USER") 
             or None
         )
         vault_pass = (
             kwargs.get("vault_pass") 
-            or os.getenv("SOBERCONF_VAULT_PASS") 
+            or os.getenv("PLAINCONF_VAULT_PASS") 
             or None
         )
         self.vault_mount_point = (
             kwargs.get("vault_mount_point") 
-            or os.getenv("SOBERCONF_VAULT_MOUNT_POINT")
+            or os.getenv("PLAINCONF_VAULT_MOUNT_POINT")
         )
         self.vault_path = (
             kwargs.get("vault_path")
-            or os.getenv("SOBERCONF_VAULT_PATH")
+            or os.getenv("PLAINCONF_VAULT_PATH")
             or self.environment
         )
 
