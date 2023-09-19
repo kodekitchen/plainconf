@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-from plainconf import Plainconf
+from ..plainconf import Plainconf
 
 
 @pytest.fixture
