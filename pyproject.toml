@@ -2,10 +2,10 @@
 name = "plainconf"
 version = "0.1.4"
 description = "Minimal configuration handling supporting hashicorp vault."
-authors = ["Caspar David Dzikus <caspar@kodekitchen.com>"]
+authors = [{name="Caspar David Dzikus", email="caspar@kodekitchen.com"}]
 classifiers = ["Development Status :: 2 - Pre-Alpha"]
 readme = "README.md"
 dependencies = ["python-dotenv", "hvac"]
 repository = "https://github.com/kodekitchen/plainconf"
 keywords = ["configuration", "vault"]
-bugtracker = "https://github.com/kodekitchen/plainconf/issues"
+
