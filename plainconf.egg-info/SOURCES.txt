@@ -1,9 +1,0 @@
-LICENSE
-README.md
-plainconf.py
-pyproject.toml
-plainconf.egg-info/PKG-INFO
-plainconf.egg-info/SOURCES.txt
-plainconf.egg-info/dependency_links.txt
-plainconf.egg-info/requires.txt
-plainconf.egg-info/top_level.txt
