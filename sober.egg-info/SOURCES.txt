@@ -1,0 +1,9 @@
+LICENSE
+README.md
+plainconf.py
+pyproject.toml
+sober.egg-info/PKG-INFO
+sober.egg-info/SOURCES.txt
+sober.egg-info/dependency_links.txt
+sober.egg-info/requires.txt
+sober.egg-info/top_level.txt
