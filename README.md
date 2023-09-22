@@ -67,7 +67,7 @@ In order to encrypt the values in the toml file you will need a fernet key
     key = Fernet.generate_key()
 ```
 
-encrypt_toml(str, str) expects the key as bytes and the path to the secrets file to
+encrypt_toml(key: bytes, file: str) expects the key as bytes and the path to the secrets file to
 be encrypted:
 
 ``` python
