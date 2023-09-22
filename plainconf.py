@@ -25,7 +25,10 @@ def encrypt_toml(key, file):
     with open(f'{os.getcwd()}/{file}', "rb") as f:
         secrets = tomllib.load(f)
     enc = _traverse_dict(secrets, fernet)
-    with open(f'{os.getcwd()}/{file}', "w") as f:
+    *left, right = file.rsplit('.')
+    middle = left.pop(-1) + '_enc'
+    outfile = '.'.join(left + [middle] + [right])
+    with open(f'{os.getcwd()}/{outfile}', "w") as f:
         f.write(tomli_w.dumps(enc))
 
 
@@ -33,7 +36,7 @@ def _get_vault_client(vault_url: str, vault_token: str) -> hvac.Client:
     return hvac.Client(url=vault_url, token=vault_token)
 
 
-def _get_vault_client_userpass(vault_url: str, vault_user: str, vault_pass: str) -> str:
+def _get_vault_token_userpass(vault_url: str, vault_user: str, vault_pass: str) -> str:
     vault_client = hvac.Client(url=vault_url)
     token_request = vault_client.auth.userpass.login(
         username=vault_user, password=vault_pass
@@ -41,14 +44,19 @@ def _get_vault_client_userpass(vault_url: str, vault_user: str, vault_pass: str)
     return token_request.get("auth").get("client_token")
 
 
-def _load_file(file: str) -> dict | None:
-    try:
-        with open(f'{os.getcwd()}/{file}', mode="rb") as f:
-            toml = tomllib.load(f)
-            return toml
-    except FileNotFoundError:
-        print(f'{file} could not be found.')
+def _get_vault_token_approle(vault_url: str, vault_approle_id: str, vault_approle_secret_id: str):
+    client = hvac.Client("http://localhost:8200")
+    token_request = client.auth.approle.login(
+        role_id=vault_approle_id,
+        secret_id=vault_approle_secret_id
+    )
+    return token_request.get("auth").get("client_token")
 
+
+def _load_file(file_path: str) -> dict | None:
+    with open(f'{os.getcwd()}/{file_path}', mode="rb") as f:
+        toml = tomllib.load(f)
+        return toml
 
 def _get_vault_secrets(vault_client: hvac.Client, vault_mount_point: str, vault_path: str) -> dict:
     try:
@@ -64,6 +72,16 @@ def _get_vault_secrets(vault_client: hvac.Client, vault_mount_point: str, vault_
         return _secrets.get("data")
 
 
+def _find_leaves(d, leaves=[]):
+    assert d, 'Environment not configured.'
+    for k, v in d.items():
+        if isinstance(v, dict):
+            _find_leaves(v, leaves)
+        else:
+            leaves.append((k, v))
+    return leaves
+
+
 def _find_env(elements, d):
     for i in elements:
         d = d.get(i)
@@ -71,7 +89,8 @@ def _find_env(elements, d):
         if elements:
             return _find_env(elements, d)
         else:
-            return d
+            leaves = _find_leaves(d, [])
+            return leaves
        
 
 class Plainconf:
@@ -95,20 +114,31 @@ class Plainconf:
         settings_file: str = (
             kwargs.get("settings_file")
             or os.getenv("PLAINCONF_SETTINGS_FILE")
-            or "plainconf_settings.toml"
         )
         secrets_file: str = (
             kwargs.get("secrets_file")
             or os.getenv("PLAINCONF_SECRETS_FILE")
-            or '.plainconf_secrets.toml'
         )
 
-        # vault options
+        # vault configuration for hvac
 
         vault_url: str = (
             kwargs.get("vault_url") 
             or os.getenv("PLAINCONF_VAULT_URL")
         )
+        vault_mount_point: str = (
+            kwargs.get("vault_mount_point") 
+            or os.getenv("PLAINCONF_VAULT_MOUNT_POINT")
+            or '/kv'
+        )
+        vault_path: str = (
+            kwargs.get("vault_path")
+            or os.getenv("PLAINCONF_VAULT_PATH")
+            or self.environment
+        )
+
+        # vault authentication
+
         vault_token: str = (
             kwargs.get("vault_token") 
             or os.getenv("PLAINCONF_VAULT_TOKEN")
@@ -116,21 +146,18 @@ class Plainconf:
         vault_user: str = (
             kwargs.get("vault_user") 
             or os.getenv("PLAINCONF_VAULT_USER") 
-            or None
         )
         vault_pass: str = (
             kwargs.get("vault_pass") 
             or os.getenv("PLAINCONF_VAULT_PASS") 
-            or None
         )
-        vault_mount_point: str = (
-            kwargs.get("vault_mount_point") 
-            or os.getenv("PLAINCONF_VAULT_MOUNT_POINT")
+        vault_approle_id: str = (
+            kwargs.get('vault_approle_id')
+            or os.getenv('PLAINCONF_APPROLE_ID')
         )
-        vault_path: str = (
-            kwargs.get("vault_path")
-            or os.getenv("PLAINCONF_VAULT_PATH")
-            or self.environment
+        vault_approle_secret_id: str = (
+            kwargs.get('vault_approle_secret_id')
+            or os.getenv('PLAINCONF_APPROLE_SECRET_ID')
         )
 
         # fernet key
@@ -141,13 +168,22 @@ class Plainconf:
         )
         if fernet_key:
             fernet = Fernet(bytes(fernet_key, 'utf-8'))
+        else:
+            fernet = None
 
         # handling vault
 
         if vault_url:
             
             if vault_user and vault_pass:
-                vault_token = _get_vault_client_userpass(
+                vault_token = _get_vault_token_userpass(
+                    vault_url, 
+                    vault_user, 
+                    vault_pass
+                )
+
+            if vault_approle_id and vault_approle_secret_id:
+                vault_token = _get_vault_token_approle(
                     vault_url, 
                     vault_user, 
                     vault_pass
@@ -175,7 +211,7 @@ class Plainconf:
             secrets_f = _load_file(secrets_file)
             secrets = _find_env(self.environment.split('.'), secrets_f)
             if secrets:
-                for k, v in secrets.items():
+                for k, v in secrets:
                     if fernet:
                         setattr(self, k, fernet.decrypt(v).decode())
                     else:
@@ -186,5 +222,5 @@ class Plainconf:
         settings_f = _load_file(settings_file)
         settings = _find_env(self.environment.split('.'), settings_f)
         if settings:
-            for k, v in settings.items():
+            for k, v in settings:
                 setattr(self, k, v)
