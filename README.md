@@ -85,10 +85,33 @@ password = "gAAAAABlDfsMIkZzIqKFQW8NBHVIqITKLCgQkzr6VKOYglHroZ--jFtkEsFr3feqSL1W
 In order to read the encrypted secrets, the key has to be given as 
 keyword argument or environment variable (without the b at the beginning)
 
+## Nested environments
+
+Plainconf will read the environment given in the variable and the entries
+above and flatten everything, as that is the use case I have.
+
+``` toml
+[development]
+db_url = "localhost:4321"
+
+[development.local]
+db_username = "local"
+```
+
+``` python
+conf = Plainconf(
+    environment="development.local",
+    settings_file="settings.toml",
+)
+
+assert conf.db_url == "localhost:4321"
+assert conf.db_username == "local"
+```
+
 
 ## Limitations
 
-* Only supports userpass and token authentication on Hashicorp Vault
+* Only supports userpass, approle and token authentication on Hashicorp Vault
 
 * Only works with kv secret engine
 
