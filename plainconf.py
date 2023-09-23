@@ -82,14 +82,17 @@ def _find_leaves(d, leaves=[]):
     return leaves
 
 
-def _find_env(elements, d):
+def _find_env(elements, d, leaves=[]):
     for i in elements:
         d = d.get(i)
         elements.pop(0)
         if elements:
-            return _find_env(elements, d)
+            for k, v in d.items():
+                if not isinstance(v, dict):
+                    leaves.append((k, v))
+            return _find_env(elements, d, leaves)
         else:
-            leaves = _find_leaves(d, [])
+            leaves = _find_leaves(d, leaves)
             return leaves
        
 

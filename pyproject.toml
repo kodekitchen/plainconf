@@ -1,9 +1,9 @@
 [project]
 name = "plainconf"
-version = "0.1.14"
+version = "0.1.15"
 description = "Minimal configuration handling supporting hashicorp vault."
 authors = [{name="Caspar David Dzikus", email="caspar@kodekitchen.com"}]
-classifiers = ["Development Status :: 2 - Pre-Alpha"]
+classifiers = ["Development Status :: 3 - Alpha"]
 readme = "README.md"
 dependencies = ["python-dotenv", "hvac", "tomli_w"]
 keywords = ["configuration", "vault"]
