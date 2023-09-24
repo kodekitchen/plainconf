@@ -215,12 +215,12 @@ class Plainconf:
 
         if secrets_file:
             secrets_f = _load_file(secrets_file)
-            secrets = _find_env(self.environment.split('.'), secrets_f)
+            secrets = _find_env(self.environment.split('.'), secrets_f, [])
             if secrets:
                 for k, v in secrets:
                     if fernet:
                         if isinstance(v, list):
-                            setattr(self, k, [fernet.decrypt(i).decode for i in v])
+                            setattr(self, k, [fernet.decrypt(i).decode() for i in v])
                         else:
                             setattr(self, k, fernet.decrypt(v).decode())
                     else:
@@ -229,7 +229,7 @@ class Plainconf:
         # get settings
 
         settings_f = _load_file(settings_file)
-        settings = _find_env(self.environment.split('.'), settings_f)
+        settings = _find_env(self.environment.split('.'), settings_f, [])
         if settings:
             for k, v in settings:
                 setattr(self, k, v)
