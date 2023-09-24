@@ -11,16 +11,19 @@ import tomli_w
 import tomllib
 
 
-def _traverse_dict(d, fernet):
+def _traverse_dict(d: dict, fernet: Fernet):
     for k, v in d.items():
         if isinstance(v, dict):
             _traverse_dict(v, fernet)
         else:
-            d[k] = fernet.encrypt(v.encode()).decode()
+            if isinstance(v, list):
+                d[k] = [fernet.encrypt(i.encode()).decode() for i in v]
+            else:
+                d[k] = fernet.encrypt(v.encode()).decode()
     return d
 
 
-def encrypt_toml(key, file):
+def encrypt_toml(key: bytes, file: str) -> None:
     fernet = Fernet(key)
     with open(f'{os.getcwd()}/{file}', "rb") as f:
         secrets = tomllib.load(f)
@@ -72,7 +75,7 @@ def _get_vault_secrets(vault_client: hvac.Client, vault_mount_point: str, vault_
         return _secrets.get("data")
 
 
-def _find_leaves(d, leaves=[]):
+def _find_leaves(d: dict, leaves=[]) -> list:
     assert d, 'Environment not configured.'
     for k, v in d.items():
         if isinstance(v, dict):
@@ -82,7 +85,7 @@ def _find_leaves(d, leaves=[]):
     return leaves
 
 
-def _find_env(elements, d, leaves=[]):
+def _find_env(elements: list, d: dict, leaves=[]) -> list:
     for i in elements:
         d = d.get(i)
         elements.pop(0)
@@ -216,7 +219,10 @@ class Plainconf:
             if secrets:
                 for k, v in secrets:
                     if fernet:
-                        setattr(self, k, fernet.decrypt(v).decode())
+                        if isinstance(v, list):
+                            setattr(self, k, [fernet.decrypt(i).decode for i in v])
+                        else:
+                            setattr(self, k, fernet.decrypt(v).decode())
                     else:
                         setattr(self, k, v)
 
