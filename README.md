@@ -56,6 +56,23 @@ password = "secret"
 
 ``` 
 
+## Assumptions
+
+Plainconf assumes, that the setings and secrets are organised in envrironments.
+Further it assumes, that the relevant configuration is the most specific one and
+all levels above hold common information for the levels below.
+
+``` toml
+[development]
+...                   <- this information is relevant to development.local
+
+[development.local]   <- this is the environment you want to work with (including everything from development)
+...
+
+
+[development.staging]
+...
+``` 
 
 ## Encrypting toml file with fernet
 
