@@ -209,9 +209,9 @@ class Plainconf:
                     vault_path,
                 )
 
-        if vault_secrets:
-            for k, v in vault_secrets.items():
-                setattr(self, k, v)
+            if vault_secrets:
+                for k, v in vault_secrets.items():
+                    setattr(self, k, v)
 
         # overwrite or append secrets with local file 
 

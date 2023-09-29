@@ -61,6 +61,7 @@ password = "secret"
 Plainconf assumes, that the setings and secrets are organised in envrironments.
 Further it assumes, that the relevant configuration is the most specific one and
 all levels above hold common information for the levels below.
+The environments have to be present in both the settings and secrets file.
 
 ``` toml
 [development]
