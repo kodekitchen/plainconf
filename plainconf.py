@@ -190,7 +190,7 @@ class Plainconf:
                     vault_pass
                 )
 
-            if vault_approle_id and vault_approle_secret_id:
+            elif vault_approle_id and vault_approle_secret_id:
                 vault_token = _get_vault_token_approle(
                     vault_url, 
                     vault_user, 
